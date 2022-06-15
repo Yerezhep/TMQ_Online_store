@@ -1,21 +1,27 @@
-package kz.tmq.tmq_online_store.auth.dto.register;
+package kz.tmq.tmq_online_store.auth.dto.auth;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class RegisterRequest {
 
+    @NotBlank
     @Email
-    @Length
     private String email;
 
+    @NotBlank
+    @Length(min = 6, max = 30)
     private String username;
 
+    @NotBlank
+    @Length(min = 6, max = 30)
     private String password;
 
+    @NotBlank
     private String password2;
 
 }

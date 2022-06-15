@@ -1,5 +1,6 @@
 package kz.tmq.tmq_online_store.auth.domain;
 
+import kz.tmq.tmq_online_store.auth.domain.enums.AuthProvider;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,8 +12,7 @@ import java.util.List;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
-    @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -24,10 +24,16 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String activation_code;
+    private String activationCode;
+
+    private String passwordResetCode;
 
     @Column(nullable = false)
     private boolean isActive = false;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",

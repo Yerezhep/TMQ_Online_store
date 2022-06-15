@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activate User</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-4 offset-4 text-center">
+                <h3>Hello <span th:text="${email}"></span> </h3>
+                <p>Welcome to TMQ Online Store</p>
+                <p>To activate your account, please, follow the link:</p>
+                <a th:href="@{${activationUrl}}">Activate Account</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
