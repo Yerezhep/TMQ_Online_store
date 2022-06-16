@@ -10,10 +10,14 @@ import kz.tmq.tmq_online_store.auth.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.auth.repository.RoleRepository;
 import kz.tmq.tmq_online_store.auth.repository.UserRepository;
 import kz.tmq.tmq_online_store.auth.security.JwtProvider;
+import kz.tmq.tmq_online_store.auth.security.oauth2.OAuth2UserInfo;
 import kz.tmq.tmq_online_store.auth.serivce.AuthService;
 import kz.tmq.tmq_online_store.auth.serivce.RoleService;
 import kz.tmq.tmq_online_store.auth.serivce.email.MailService;
+import kz.tmq.tmq_online_store.auth.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mail.MailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,19 +41,22 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
     private final CommonMapper commonMapper;
 
     @Value("${hostname}")
     private String hostname;
 
-    public AuthServiceImpl(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder, MailService mailService, AuthenticationManager authenticationManager, JwtProvider jwtProvider, CommonMapper commonMapper) {
+    public AuthServiceImpl(UserRepository userRepository,
+                           RoleService roleService,
+                           PasswordEncoder passwordEncoder,
+                           MailService mailService,
+                           AuthenticationManager authenticationManager,
+                           CommonMapper commonMapper) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
         this.authenticationManager = authenticationManager;
-        this.jwtProvider = jwtProvider;
         this.commonMapper = commonMapper;
     }
 
@@ -99,17 +106,12 @@ public class AuthServiceImpl implements AuthService {
         // authenticate
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailOrUsername, password));
         User user = findUserByUsernameOrEmail(loginRequest.getEmailOrUsername());
-        List<Role> roles = user.getRoles();
-
-        // generate token
-        String token = jwtProvider.generateToken(loginRequest.getEmailOrUsername(), roles);
 
         return new LoginResponse(
                 user.getEmail(),
                 user.getUsername(),
                 user.getRoles(),
-                user.getAuthProvider(),
-                token
+                user.getAuthProvider()
         );
     }
 
@@ -145,6 +147,29 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return "Password successfully changed for user: " + resetPasswordRequest.getEmail();
+    }
+
+    @Override
+    public User updateOAuth2User(String provider, OAuth2UserInfo oAuth2UserInfo) {
+        User user = userRepository.findByEmail(oAuth2UserInfo.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + oAuth2UserInfo.getEmail()));
+        user.setEmail(oAuth2UserInfo.getEmail());
+        user.setUsername(oAuth2UserInfo.getUsername());
+        user.setAuthProvider(AuthProvider.valueOf(provider.toUpperCase()));
+        return user;
+    }
+
+    @Override
+    public User registerOAuth2User(String provider, OAuth2UserInfo oAuth2UserInfo) {
+        User user = new User();
+        user.setEmail(oAuth2UserInfo.getEmail());
+        user.setUsername(oAuth2UserInfo.getUsername());
+        user.setActive(true);
+        user.setAuthProvider(AuthProvider.valueOf(provider.toUpperCase()));
+        Role role = roleService.findRoleByName(RoleEnum.USER.name());
+        user.setRoles(Collections.singletonList(role));
+
+        return userRepository.save(user);
     }
 
     @Override

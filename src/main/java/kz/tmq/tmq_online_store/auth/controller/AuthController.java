@@ -1,7 +1,11 @@
 package kz.tmq.tmq_online_store.auth.controller;
 
 import kz.tmq.tmq_online_store.auth.dto.auth.*;
+import kz.tmq.tmq_online_store.auth.security.JwtProvider;
 import kz.tmq.tmq_online_store.auth.serivce.AuthService;
+import kz.tmq.tmq_online_store.auth.util.CookieUtils;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -14,9 +18,13 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final CookieUtils cookieUtils;
+    private final JwtProvider jwtProvider;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, CookieUtils cookieUtils, JwtProvider jwtProvider) {
         this.authService = authService;
+        this.cookieUtils = cookieUtils;
+        this.jwtProvider = jwtProvider;
     }
 
     @PostMapping("/register")
@@ -32,7 +40,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        return new ResponseEntity<>(authService.login(loginRequest), HttpStatus.OK);
+        LoginResponse loginResponse = authService.login(loginRequest);
+        // generate token
+        String token = jwtProvider.generateToken(loginResponse.getEmail(), loginResponse.getRoles());
+
+        // jwt cookie
+        HttpCookie httpCookie = cookieUtils.createJwtCookie(token);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.SET_COOKIE, httpCookie.toString());
+
+        return new ResponseEntity<>(authService.login(loginRequest), httpHeaders ,HttpStatus.OK) ;
     }
 
     @GetMapping("/forgot/{email}")
@@ -48,6 +65,11 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest, BindingResult bindingResult) {
         return new ResponseEntity<>(authService.resetPassword(resetPasswordRequest, bindingResult), HttpStatus.OK);
+    }
+
+    @GetMapping("/oauth2/redirect")
+    public ResponseEntity<String> redirect() {
+        return new ResponseEntity<>("OAuth2 Cookie Jwt works", HttpStatus.OK);
     }
 
 }

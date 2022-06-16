@@ -19,6 +19,4 @@ public class LoginResponse {
 
     private AuthProvider provider;
 
-    private String token;
-
 }

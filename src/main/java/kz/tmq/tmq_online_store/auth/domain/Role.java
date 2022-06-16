@@ -1,6 +1,8 @@
 package kz.tmq.tmq_online_store.auth.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -15,5 +17,7 @@ public class Role {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+
 
 }
