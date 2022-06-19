@@ -1,8 +1,7 @@
-package kz.tmq.tmq_online_store.auth.security.oauth2;
+package kz.tmq.tmq_online_store.auth.security.oauth2.user;
 
 import kz.tmq.tmq_online_store.auth.domain.enums.AuthProvider;
 import kz.tmq.tmq_online_store.auth.exception.auth.OAuth2NoSuchRegistrationId;
-import lombok.SneakyThrows;
 
 import java.util.Map;
 

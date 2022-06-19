@@ -1,4 +1,4 @@
-package kz.tmq.tmq_online_store.auth.serivce.email;
+package kz.tmq.tmq_online_store.auth.serivce.impl;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +12,12 @@ import javax.mail.internet.MimeMessage;
 import java.util.Map;
 
 @Service
-public class MailService {
+public class MailServiceImpl {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
-    public MailService(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
+    public MailServiceImpl(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
     }

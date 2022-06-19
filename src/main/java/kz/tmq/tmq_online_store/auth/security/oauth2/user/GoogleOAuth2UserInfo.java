@@ -1,4 +1,4 @@
-package kz.tmq.tmq_online_store.auth.security.oauth2;
+package kz.tmq.tmq_online_store.auth.security.oauth2.user;
 
 import java.util.Map;
 
@@ -10,17 +10,12 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getId() {
-        return ((Integer) attributes.get("id")).toString();
+        return (String) attributes.get("sub");
     }
 
     @Override
-    public String getFirstName() {
+    public String getName() {
         return (String) attributes.get("name");
-    }
-
-    @Override
-    public String getLastName() {
-        return null;
     }
 
     @Override
@@ -33,3 +28,4 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
         return null;
     }
 }
+

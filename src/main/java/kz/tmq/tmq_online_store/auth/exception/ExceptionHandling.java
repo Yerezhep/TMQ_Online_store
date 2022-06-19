@@ -10,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import static kz.tmq.tmq_online_store.auth.constant.AuthConstant.*;
+
 @RestControllerAdvice
 public class ExceptionHandling implements ErrorController {
 
@@ -28,48 +30,33 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<HttpResponse> roleNotFound(FormNotValidException exception) {
-        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
-    }
-
-    @ExceptionHandler(EmailExistException.class)
-    public ResponseEntity<HttpResponse> emailExist(EmailExistException exception) {
+    @ExceptionHandler(UserNotActivatedException.class)
+    public ResponseEntity<HttpResponse> userNotActivated(UserNotActivatedException exception) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler(UsernameExistException.class)
-    public ResponseEntity<HttpResponse> usernameExist(UsernameExistException exception) {
+    @ExceptionHandler(ResourceExistException.class)
+    public ResponseEntity<HttpResponse> emailExist(ResourceExistException exception) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler(ActivationCodeNotFound.class)
-    public ResponseEntity<HttpResponse> activationCodeNotFound(ActivationCodeNotFound exception) {
-        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<HttpResponse> authenticaiton(AuthenticationException exception) {
-        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<HttpResponse> userNotFound(UserNotFoundException exception) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<HttpResponse> emailExist(ResourceNotFoundException exception) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<HttpResponse> badCredentials() {
-        return createHttpResponse(HttpStatus.BAD_REQUEST, "Invalid Email/Username/Password. Please, try again");
-    }
-
-    @ExceptionHandler(PasswordResetCodeNotFound.class)
-    public ResponseEntity<HttpResponse> passwordResetCodeNotFound(PasswordResetCodeNotFound exception) {
-        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return createHttpResponse(HttpStatus.BAD_REQUEST, BAD_CREDENTIALS_MESSAGE);
     }
 
     @ExceptionHandler(OAuth2NoSuchRegistrationId.class)
     public ResponseEntity<HttpResponse> noSuchRegistrationId(OAuth2NoSuchRegistrationId exception) {
+        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<HttpResponse> authentication(Exception exception) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 

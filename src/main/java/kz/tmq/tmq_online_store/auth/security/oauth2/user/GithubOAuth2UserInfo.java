@@ -1,4 +1,4 @@
-package kz.tmq.tmq_online_store.auth.security.oauth2;
+package kz.tmq.tmq_online_store.auth.security.oauth2.user;
 
 import java.util.Map;
 
@@ -14,13 +14,8 @@ public class GithubOAuth2UserInfo extends OAuth2UserInfo {
     }
 
     @Override
-    public String getFirstName() {
+    public String getName() {
         return (String) attributes.get("name");
-    }
-
-    @Override
-    public String getLastName() {
-        return null;
     }
 
     @Override
@@ -32,4 +27,5 @@ public class GithubOAuth2UserInfo extends OAuth2UserInfo {
     public String getUsername() {
         return (String) attributes.get("login");
     }
+
 }
