@@ -1,8 +1,11 @@
 package kz.tmq.tmq_online_store.auth.serivce.impl;
 
 import kz.tmq.tmq_online_store.auth.domain.User;
+import kz.tmq.tmq_online_store.auth.domain.UserDetails;
+import kz.tmq.tmq_online_store.auth.dto.user.UserInfoResponse;
 import kz.tmq.tmq_online_store.auth.exception.auth.ResourceNotFoundException;
 import kz.tmq.tmq_online_store.auth.repository.UserRepository;
+import kz.tmq.tmq_online_store.auth.serivce.UserDetailsService;
 import kz.tmq.tmq_online_store.auth.serivce.UserService;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +15,11 @@ import static kz.tmq.tmq_online_store.auth.constant.AuthConstant.*;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserDetailsService userDetailsService) {
         this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -60,5 +65,22 @@ public class UserServiceImpl implements UserService {
     public User findByActivationCode(String activationCode) {
         return userRepository.findByActivationCode(activationCode)
                 .orElseThrow(() -> new ResourceNotFoundException(USER, ACTIVATION_CODE, activationCode));
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo(String email) {
+        User user = findByEmail(email);
+        UserDetails userDetails = userDetailsService.findById(user.getId());
+        UserInfoResponse userInfoResponse = new UserInfoResponse();
+        userInfoResponse.setEmail(user.getEmail());
+        userInfoResponse.setUsername(user.getUsername());
+        userInfoResponse.setFirstName(userDetails.getFirstName());
+        userInfoResponse.setLastName(userDetails.getLastName());
+        userInfoResponse.setGender(userDetails.getGender());
+        userInfoResponse.setCity(userDetails.getCity());
+        userInfoResponse.setAddress(userDetails.getAddress());
+        userInfoResponse.setPhoneNumber(userDetails.getPhoneNumber());
+
+        return userInfoResponse;
     }
 }

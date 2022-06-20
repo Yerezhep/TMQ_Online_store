@@ -55,7 +55,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // jwt cookie
         CookieUtils.addCookie(response, "access_token", token, 3600);
 
-        String redirectUri = "http://localhost:8080/test";
+        String redirectUri = "http://localhost:8080//api/v1/user/info";
         String uri = UriComponentsBuilder.fromUriString(redirectUri)
 //                .queryParam("token", token)
                 .build().toUriString();

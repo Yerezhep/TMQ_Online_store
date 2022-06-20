@@ -18,6 +18,8 @@ public class AuthConstant {
     public static final String PASSWORDS_DO_NOT_MATCH_MESSAGE = "Passwords do not match";
     public static final String FIELD_IS_NOT_VALID_MESSAGE = "%s field is not valid";
     public static final String USER_NOT_ACTIVATED_MESSAGE = "User not activated: %s";
+    public static final String RESET_PASSWORD_LINK_SEND_MESSAGE = "Reset password link was sent to %s";
+    public static final String PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE = "Password successfully changed for user: %s";
 
     public static final String USER = "User";
     public static final String ROLE = "Role";

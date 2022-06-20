@@ -2,11 +2,13 @@ package kz.tmq.tmq_online_store.auth.serivce.impl;
 
 import kz.tmq.tmq_online_store.auth.domain.Role;
 import kz.tmq.tmq_online_store.auth.domain.User;
+import kz.tmq.tmq_online_store.auth.domain.UserDetails;
 import kz.tmq.tmq_online_store.auth.domain.enums.AuthProvider;
 import kz.tmq.tmq_online_store.auth.domain.enums.RoleEnum;
 import kz.tmq.tmq_online_store.auth.dto.auth.*;
 import kz.tmq.tmq_online_store.auth.exception.auth.*;
 import kz.tmq.tmq_online_store.auth.mapper.CommonMapper;
+import kz.tmq.tmq_online_store.auth.repository.UserDetailsRepository;
 import kz.tmq.tmq_online_store.auth.repository.UserRepository;
 import kz.tmq.tmq_online_store.auth.security.TokenProvider;
 import kz.tmq.tmq_online_store.auth.serivce.AuthService;
@@ -35,6 +37,7 @@ import static kz.tmq.tmq_online_store.auth.constant.AuthConstant.*;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final UserDetailsRepository userDetailsRepository;
     private final RoleService roleService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -47,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private CookieUtils cookieUtils;
 
     public AuthServiceImpl(UserRepository userRepository,
+                           UserDetailsRepository userDetailsRepository,
                            RoleService roleService,
                            UserService userService,
                            PasswordEncoder passwordEncoder,
@@ -55,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
                            TokenProvider tokenProvider,
                            CommonMapper commonMapper) {
         this.userRepository = userRepository;
+        this.userDetailsRepository = userDetailsRepository;
         this.roleService = roleService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -79,8 +84,11 @@ public class AuthServiceImpl implements AuthService {
         registeringUser.setAuthProvider(AuthProvider.LOCAL);
         registeringUser.setActivationCode(UUID.randomUUID().toString());
 
-        // save user
+        // save user and user details
         User registeredUser = userRepository.save(registeringUser);
+        UserDetails userDetails = new UserDetails();
+        userDetails.setUser(registeredUser);
+        userDetailsRepository.save(userDetails);
 
         // send activation link to email
         sendEmail(registeredUser.getEmail(),
@@ -147,7 +155,7 @@ public class AuthServiceImpl implements AuthService {
                 RESET_PASSWORD_URL + user.getPasswordResetCode()
         );
 
-        return "Reset password link was sent to " + user.getEmail();
+        return String.format(RESET_PASSWORD_LINK_SEND_MESSAGE, user.getEmail());
     }
 
     @Override
@@ -164,7 +172,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordResetCode(null);
         userRepository.save(user);
 
-        return "Password successfully changed for user: " + resetPasswordRequest.getEmail();
+        return String.format(PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE, resetPasswordRequest.getEmail());
     }
 
     private void validateForms(BindingResult bindingResult) {
