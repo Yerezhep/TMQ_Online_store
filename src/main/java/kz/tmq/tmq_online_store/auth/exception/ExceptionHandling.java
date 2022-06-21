@@ -5,6 +5,7 @@ import kz.tmq.tmq_online_store.auth.exception.auth.*;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +54,11 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(OAuth2NoSuchRegistrationId.class)
     public ResponseEntity<HttpResponse> noSuchRegistrationId(OAuth2NoSuchRegistrationId exception) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<HttpResponse> accessDenied(AccessDeniedException exception) {
+        return createHttpResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

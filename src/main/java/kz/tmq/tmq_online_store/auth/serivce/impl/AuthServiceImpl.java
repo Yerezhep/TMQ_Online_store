@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
         // validate
         validateForms(bindingResult);
         validatePasswords(registerRequest.getPassword(), registerRequest.getPassword2());
-        validateEmailAndUsername(registerRequest.getUsername(), registerRequest.getUsername());
+        validateEmailAndUsername(registerRequest.getEmail(), registerRequest.getUsername());
 
         // create user
         User registeringUser = commonMapper.convertTo(registerRequest, User.class);

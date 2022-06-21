@@ -6,6 +6,7 @@ import kz.tmq.tmq_online_store.auth.serivce.AuthService;
 import kz.tmq.tmq_online_store.auth.util.CookieUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +57,11 @@ public class AuthController {
     @GetMapping("/oauth2/redirect")
     public ResponseEntity<String> redirect() {
         return new ResponseEntity<>("OAuth2 Cookie Jwt works", HttpStatus.OK);
+    }
+
+    @GetMapping("/oauth2/login")
+    public ResponseEntity<String> login() {
+        throw new AccessDeniedException("Please, sign in");
     }
 
 }

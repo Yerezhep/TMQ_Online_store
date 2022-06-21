@@ -46,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .anyRequest().authenticated()
                 .and()
                 .oauth2Login()
+                .loginPage("/api/v1/auth/oauth2/login")
                     .authorizationEndpoint()
                         .baseUri("/oauth2/authorize")
                         .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
