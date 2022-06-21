@@ -9,7 +9,7 @@ public class AuthConstant {
     public static final String ACTIVATE_SUBJECT = "Activate account";
     public static final String ACTIVATE_TEMPLATE_NAME = "activate-user";
 
-    public static final String RESET_PASSWORD_URL = DOMAIN_URL + "reset-password/";
+    public static final String RESET_PASSWORD_URL = DOMAIN_URL + "/reset-password/";
     public static final String RESET_PASSWORD_ATTRIBUTE = "resetPasswordUrl";
     public static final String RESET_PASSWORD_SUBJECT = "Reset password";
     public static final String RESET_PASSWORD_TEMPLATE_NAME = "reset-password";
