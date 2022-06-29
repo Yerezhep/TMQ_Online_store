@@ -1,6 +1,7 @@
 package kz.tmq.tmq_online_store.auth.domain;
 
 import kz.tmq.tmq_online_store.auth.domain.enums.AuthProvider;
+import kz.tmq.tmq_online_store.business.entity.Cart;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -40,5 +41,8 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
     )
     private List<Role> roles;
+
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
 
 }
