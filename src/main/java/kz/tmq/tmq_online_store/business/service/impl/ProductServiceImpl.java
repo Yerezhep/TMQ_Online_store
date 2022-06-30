@@ -29,6 +29,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product findOne(Long id) {
+        return repository.findById(id).get();
+    }
+
+    @Override
     public ProductFindOneResponse findById(Long id) {
         Product product = repository.findById(id).get();
         ProductFindOneResponse productFindOneResponse = commonMapper.convertTo(product, ProductFindOneResponse.class);

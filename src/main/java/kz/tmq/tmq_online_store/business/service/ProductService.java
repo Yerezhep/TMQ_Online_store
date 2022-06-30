@@ -8,6 +8,7 @@ import java.util.List;
 public interface ProductService {
     public ProductCreateResponse create(ProductCreateRequest createRequest);
 
+    public Product findOne(Long id);
 
     public ProductFindOneResponse findById(Long id);
 

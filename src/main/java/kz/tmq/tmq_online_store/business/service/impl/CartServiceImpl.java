@@ -43,7 +43,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = new Cart();
         CartItem cartItem = new CartItem();
         cartItem.setQuantity(addToCartDto.getQuantity());
-        cartItem.setProduct(productService.findById(addToCartDto.getProductId()));
+        cartItem.setProduct(productService.findOne(addToCartDto.getProductId()));
         cartItem.setCart(cart);
 
         cart.getCartItems().add(cartItem);
@@ -54,7 +54,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart addToExistingCart(User user, AddToCartDto addToCartDto) {
         Cart cart = cartRepository.findByUser(user);
-        Product product = productService.findById(addToCartDto.getProductId());
+        Product product = productService.findOne(addToCartDto.getProductId());
         boolean productDoesExistInTheCart = false;
         if(cart != null){
             Set<CartItem> cartItems = cart.getCartItems();
