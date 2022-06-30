@@ -1,14 +1,12 @@
 package kz.tmq.tmq_online_store.business.dto.product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import kz.tmq.tmq_online_store.business.entity.Category;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class ProductCreateResponse {
+public class ProductFindAllResponse {
     private Long id;
 
     private String title;

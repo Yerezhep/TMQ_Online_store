@@ -1,6 +1,7 @@
 package kz.tmq.tmq_online_store.business.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
@@ -44,7 +45,7 @@ public class Product {
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonManagedReference
+    @JsonIgnore
     @JoinColumn(name = "category_id")
     private Category category;
 }

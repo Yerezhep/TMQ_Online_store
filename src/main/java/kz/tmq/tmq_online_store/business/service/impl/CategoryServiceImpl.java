@@ -41,7 +41,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryUpdateResponse update(Long id, CategoryUpdateRequest updateRequest) {
-        return null;
+        Category category = repository.findById(id).get();
+        Category requestCategory = commonMapper.convertTo(updateRequest, Category.class);
+        category.setTitle(requestCategory.getTitle());
+        category.setKeywords(requestCategory.getKeywords());
+        Category updatedCategory = repository.save(category);
+        CategoryUpdateResponse categoryUpdateResponse = commonMapper.convertTo(updatedCategory, CategoryUpdateResponse.class);
+
+        return categoryUpdateResponse;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package kz.tmq.tmq_online_store.business.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import kz.tmq.tmq_online_store.business.entity.Category;
 import lombok.Data;
 

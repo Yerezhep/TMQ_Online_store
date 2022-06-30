@@ -1,16 +1,10 @@
 package kz.tmq.tmq_online_store.business.dto.product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import kz.tmq.tmq_online_store.business.entity.Category;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
-public class ProductCreateResponse {
-    private Long id;
-
+public class ProductUpdateRequest {
     private String title;
 
     private String description;
@@ -21,9 +15,5 @@ public class ProductCreateResponse {
 
     private boolean status;
 
-    private Date createdAt;
-
     private Category category;
-
-
 }

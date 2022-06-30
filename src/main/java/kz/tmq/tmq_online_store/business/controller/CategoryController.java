@@ -1,8 +1,6 @@
 package kz.tmq.tmq_online_store.business.controller;
 
-import kz.tmq.tmq_online_store.business.dto.category.CategoryCreateRequest;
-import kz.tmq.tmq_online_store.business.dto.category.CategoryCreateResponse;
-import kz.tmq.tmq_online_store.business.dto.category.CategoryFindOneResponse;
+import kz.tmq.tmq_online_store.business.dto.category.*;
 import kz.tmq.tmq_online_store.business.entity.Category;
 import kz.tmq.tmq_online_store.business.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +45,16 @@ public class CategoryController {
         service.delete(id);
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryUpdateResponse> update(@Valid @PathVariable Long id,@RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+        try {
+            CategoryUpdateResponse updateResponse = service.update(id, categoryUpdateRequest);
+            return new ResponseEntity(updateResponse, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 }
