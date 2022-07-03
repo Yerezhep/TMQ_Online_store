@@ -1,11 +1,16 @@
 package kz.tmq.tmq_online_store.auth.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import kz.tmq.tmq_online_store.auth.domain.enums.AuthProvider;
 import kz.tmq.tmq_online_store.business.entity.Cart;
+import kz.tmq.tmq_online_store.business.entity.CartItem;
+import kz.tmq.tmq_online_store.business.entity.Order;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -44,5 +49,8 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Cart cart;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Order> orders = new HashSet<>();
 
 }
