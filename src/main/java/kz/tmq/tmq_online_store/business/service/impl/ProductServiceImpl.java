@@ -1,12 +1,19 @@
 package kz.tmq.tmq_online_store.business.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.tmq.tmq_online_store.auth.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.business.dto.product.*;
 import kz.tmq.tmq_online_store.business.entity.Product;
+import kz.tmq.tmq_online_store.business.entity.ProductImage;
+import kz.tmq.tmq_online_store.business.repository.ProductImageRepository;
 import kz.tmq.tmq_online_store.business.repository.ProductRepository;
 import kz.tmq.tmq_online_store.business.service.ProductService;
+import kz.tmq.tmq_online_store.business.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +25,39 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository repository;
     @Autowired
     private CommonMapper commonMapper;
-
+    @Autowired
+    private FileUploadUtil fileUploadUtil;
+    @Autowired
+    private ProductImageRepository productImageRepository;
     @Override
-    public ProductCreateResponse create(ProductCreateRequest createRequest) {
-        Product creatingProduct = commonMapper.convertTo(createRequest, Product.class);
+    public ProductCreateResponse create(List<MultipartFile> files, String createRequest) {
+        ProductCreateRequest productCreateRequest = new ProductCreateRequest();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            productCreateRequest = objectMapper.readValue(createRequest, ProductCreateRequest.class);
+        } catch (JsonProcessingException e) {
+            e.getMessage();
+        }
+        Product creatingProduct = commonMapper.convertTo(productCreateRequest, Product.class);
+        List<ProductImage> productImages = new ArrayList<>();
+        uploadImages(files, creatingProduct, productImages);
+        creatingProduct.setImages(productImages);
         Product createdProduct = repository.save(creatingProduct);
 
         ProductCreateResponse productCreateResponse = commonMapper.convertTo(createdProduct, ProductCreateResponse.class);
         return productCreateResponse;
+    }
+
+    private void uploadImages(List<MultipartFile> files, Product creatingProduct, List<ProductImage> productImages) {
+        for (MultipartFile file:
+             files) {
+            fileUploadUtil.uploadFile(file);
+            String imageUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/image/").path(file.getOriginalFilename()).toUriString();
+            ProductImage productImage = new ProductImage();
+            productImage.setUrl(imageUrl);
+            productImage.setProduct(creatingProduct);
+            productImages.add(productImage);
+        }
     }
 
     @Override
@@ -57,14 +89,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductUpdateResponse update(Long id, ProductUpdateRequest productUpdateRequest) {
+    public ProductUpdateResponse update(Long id, String productUpdateRequest, List<MultipartFile> files) {
         Product product = repository.findById(id).get();
-        Product updatingProduct = commonMapper.convertTo(productUpdateRequest, Product.class);
+        List<ProductImage> productImages = product.getImages();
+//        for (ProductImage productImage:
+//             productImages) {
+//            productImageRepository.delete(productImage);
+//        }
+//        productImageRepository.deleteAll(productImages);
+        productImages.clear();
+        uploadImages(files, product, productImages);
+        ProductUpdateRequest updateRequest = new ProductUpdateRequest();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            updateRequest = objectMapper.readValue(productUpdateRequest, ProductUpdateRequest.class);
+        } catch (JsonProcessingException e) {
+            e.getMessage();
+        }
+        Product updatingProduct = commonMapper.convertTo(updateRequest, Product.class);
         product.setTitle(updatingProduct.getTitle());
         product.setKeywords(updatingProduct.getKeywords());
         product.setPrice(updatingProduct.getPrice());
         product.setDescription(updatingProduct.getDescription());
         product.setCategory(updatingProduct.getCategory());
+        product.setImages(productImages);
 
         Product updatedProduct = repository.save(product);
 

@@ -43,6 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                     .antMatchers("/api/v1/auth/**").permitAll()
+                    .antMatchers("/image/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .oauth2Login()
