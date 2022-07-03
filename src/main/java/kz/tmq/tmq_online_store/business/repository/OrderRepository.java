@@ -1,18 +1,17 @@
 package kz.tmq.tmq_online_store.business.repository;
 
 import kz.tmq.tmq_online_store.auth.domain.User;
-import kz.tmq.tmq_online_store.business.entity.Cart;
+import kz.tmq.tmq_online_store.business.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-
 @Repository
-public interface CartRepository extends JpaRepository<Cart, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    Optional<Cart> findByUser(User user);
 
-    boolean existsByUser(User user);
+    List<Order> findAllByUser(User user);
 
 }

@@ -3,39 +3,34 @@ package kz.tmq.tmq_online_store.business.controller;
 import kz.tmq.tmq_online_store.auth.domain.User;
 import kz.tmq.tmq_online_store.auth.security.UserPrincipal;
 import kz.tmq.tmq_online_store.auth.serivce.UserService;
-import kz.tmq.tmq_online_store.business.dto.cart.AddToCartDto;
-import kz.tmq.tmq_online_store.business.dto.cart.CartAddResponse;
+import kz.tmq.tmq_online_store.business.dto.cart.*;
 import kz.tmq.tmq_online_store.business.entity.Cart;
-import kz.tmq.tmq_online_store.business.entity.CartItem;
 import kz.tmq.tmq_online_store.business.service.CartItemService;
 import kz.tmq.tmq_online_store.business.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
-
 @RestController
 @RequestMapping("/cart")
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
 
-    @Autowired
-    private CartItemService cartItemService;
+    private final CartService cartService;
+    private final CartItemService cartItemService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
-
+    public CartController(CartService cartService, CartItemService cartItemService, UserService userService) {
+        this.cartService = cartService;
+        this.cartItemService = cartItemService;
+        this.userService = userService;
+    }
 
 
     @PostMapping("/add")
-    public ResponseEntity<CartAddResponse> addToCart(@RequestBody AddToCartDto addToCartDto,
-                            @AuthenticationPrincipal UserPrincipal userPrincipal){
+    public ResponseEntity<CartResponse> addToCart(@RequestBody AddToCartDto addToCartDto,
+                                                  @AuthenticationPrincipal UserPrincipal userPrincipal){
 
         User user = userService.findById(userPrincipal.getId());
 
@@ -44,35 +39,49 @@ public class CartController {
         }else {
             cartService.addCartFirstTime(user, addToCartDto);
         }
-        return new ResponseEntity<>(new CartAddResponse(true, "Added to cart"), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(new CartResponse(true, "Added to cart"), HttpStatus.CREATED);
+
+    }
+
+    @GetMapping("/{cartItemId}")
+    public ResponseEntity<CartItemDto> getCartItem(@PathVariable Long cartItemId,
+                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        User user = userService.findById(userPrincipal.getId());
+        Cart cart = cartService.getUserCart(user);
+        CartItemDto cartItemDto = cartItemService.findById(cart, cartItemId);
+        return new ResponseEntity<>(cartItemDto, HttpStatus.OK);
     }
 
     @GetMapping()
-    public ResponseEntity<Set<CartItem>> getCartItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<CartDto> getCartItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
-        return ResponseEntity.ok(cartItemService.getCartItems(cartService.getUserCart(user)));
+        CartDto cartDto = cartItemService.getCartItems(cartService.getUserCart(user));
+        return new ResponseEntity<>(cartDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/remove/{cartItemId}")
+    public ResponseEntity<CartResponse> removeCartItem(@PathVariable("cartItemId") Long id, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        User user = userService.findById(userPrincipal.getId());
+        cartItemService.removeCartIemFromCart(id, user);
+        return new ResponseEntity<>(new CartResponse(true, "CartItem has been removed"), HttpStatus.OK);
     }
 
 
-    @GetMapping("/remove/{id}")
-    public String removeItem(@PathVariable("id") Long id, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        User user = userService.findById(userPrincipal.getId());
-        return cartItemService.removeCartIemFromCart(id, user);
-    }
-
-    @GetMapping("/clear")
-    public String clearCart(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    @DeleteMapping("/clear")
+    public ResponseEntity<CartResponse> clearCart(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
         cartService.clearShoppingCart(user);
-        return "Cart was cleared";
+        return new ResponseEntity<>(new CartResponse(true, "Cart has been cleared"), HttpStatus.OK);
     }
 
-    @PostMapping("/update")
-    public String updateCartItem(@RequestParam("id") Long id,
+    @PutMapping("/update")
+    public ResponseEntity<CartResponse> updateCartItem(@RequestParam("id") Long id,
                                  @RequestParam("quantity") int quantity,
                                  @AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
-        return cartItemService.updateCartItem(id, quantity, user);
+        cartItemService.updateCartItem(id, quantity, user);
+        return new ResponseEntity<>(new CartResponse(true, "CartItem has been updated"), HttpStatus.OK);
     }
 
 

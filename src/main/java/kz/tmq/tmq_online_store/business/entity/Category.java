@@ -36,6 +36,7 @@ public class Category {
     @Column
     private Date createdAt;
 
+
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Product> products;
