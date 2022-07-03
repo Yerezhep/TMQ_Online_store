@@ -2,6 +2,7 @@ package kz.tmq.tmq_online_store.business.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,7 +37,7 @@ public class Category {
     private Date createdAt;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonIgnore
     private List<Product> products;
 //    @ManyToOne
 //    @JoinColumn(name = "parent_id")

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -32,6 +34,21 @@ public class CartItem {
 
     @Column
     private int quantity;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column
+    private Date addedAt;
+
+    @Transient
+    private Double cartItemTotalPrice;
+
+    public Double cartItemTotalPrice() {
+        Double totalPrice = 0.0;
+
+        totalPrice = this.getProduct().getPrice() * this.getQuantity();
+        return totalPrice;
+    }
 
     @Override
     public boolean equals(Object o) {
