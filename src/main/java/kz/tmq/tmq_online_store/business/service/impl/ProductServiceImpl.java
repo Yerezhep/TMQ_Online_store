@@ -40,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
         }
         Product creatingProduct = commonMapper.convertTo(productCreateRequest, Product.class);
         List<ProductImage> productImages = new ArrayList<>();
-        uploadImages(files, creatingProduct, productImages);
+        fileUploadUtil.uploadImages(files, creatingProduct, productImages);
         creatingProduct.setImages(productImages);
         Product createdProduct = repository.save(creatingProduct);
 
@@ -48,17 +48,6 @@ public class ProductServiceImpl implements ProductService {
         return productCreateResponse;
     }
 
-    private void uploadImages(List<MultipartFile> files, Product creatingProduct, List<ProductImage> productImages) {
-        for (MultipartFile file:
-             files) {
-            fileUploadUtil.uploadFile(file);
-            String imageUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/image/").path(file.getOriginalFilename()).toUriString();
-            ProductImage productImage = new ProductImage();
-            productImage.setUrl(imageUrl);
-            productImage.setProduct(creatingProduct);
-            productImages.add(productImage);
-        }
-    }
 
     @Override
     public Product findOne(Long id) {
@@ -92,13 +81,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductUpdateResponse update(Long id, String productUpdateRequest, List<MultipartFile> files) {
         Product product = repository.findById(id).get();
         List<ProductImage> productImages = product.getImages();
-//        for (ProductImage productImage:
-//             productImages) {
-//            productImageRepository.delete(productImage);
-//        }
-//        productImageRepository.deleteAll(productImages);
+        productImageRepository.deleteAllInBatch(productImages);
         productImages.clear();
-        uploadImages(files, product, productImages);
+
+        fileUploadUtil.uploadImages(files, product, productImages);
+
         ProductUpdateRequest updateRequest = new ProductUpdateRequest();
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -106,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
         } catch (JsonProcessingException e) {
             e.getMessage();
         }
+
         Product updatingProduct = commonMapper.convertTo(updateRequest, Product.class);
         product.setTitle(updatingProduct.getTitle());
         product.setKeywords(updatingProduct.getKeywords());
@@ -120,4 +108,5 @@ public class ProductServiceImpl implements ProductService {
 
         return productUpdateResponse;
     }
+
 }

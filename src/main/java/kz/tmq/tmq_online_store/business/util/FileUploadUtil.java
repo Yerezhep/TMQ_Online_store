@@ -1,14 +1,20 @@
 package kz.tmq.tmq_online_store.business.util;
 
+import kz.tmq.tmq_online_store.business.entity.Product;
+import kz.tmq.tmq_online_store.business.entity.ProductImage;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 public class FileUploadUtil {
@@ -18,16 +24,33 @@ public class FileUploadUtil {
     public FileUploadUtil() throws IOException {
     }
 
-    public boolean uploadFile(MultipartFile multipartFile) {
-        boolean file = false;
-
+    public String uploadFile(MultipartFile multipartFile) {
+        String fileName = null;
         try {
-            Files.copy(multipartFile.getInputStream(), Paths.get(UPLOAD_DIR + File.separator + multipartFile.getOriginalFilename()),
+            String originalFileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+            int index = originalFileName.lastIndexOf('.');
+
+            String format = originalFileName.substring(index + 1);
+
+            fileName = UUID.randomUUID().toString() + "." + format;
+            Files.copy(multipartFile.getInputStream(), Paths.get(UPLOAD_DIR + File.separator + fileName),
                     StandardCopyOption.REPLACE_EXISTING);
-            file = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return file;
+        return fileName;
+    }
+
+
+    public void uploadImages(List<MultipartFile> files, Product creatingProduct, List<ProductImage> productImages) {
+        for (MultipartFile file:
+                files) {
+            String fileName = this.uploadFile(file);
+            String imageUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/image/").path(fileName).toUriString();
+            ProductImage productImage = new ProductImage();
+            productImage.setUrl(imageUrl);
+            productImage.setProduct(creatingProduct);
+            productImages.add(productImage);
+        }
     }
 }
