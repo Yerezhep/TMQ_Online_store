@@ -5,6 +5,7 @@ import kz.tmq.tmq_online_store.serivce.business.CategoryService;
 import kz.tmq.tmq_online_store.dto.category.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,48 +16,42 @@ import java.util.NoSuchElementException;
 @RequestMapping("/api/v1/category")
 public class CategoryController {
 
-    private final CategoryService service;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryService service) {
-        this.service = service;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/all")
     public List<Category> findAll() {
-        return service.findAll();
+        return categoryService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryFindOneResponse> findById(@PathVariable Long id) {
-        try {
-            CategoryFindOneResponse categoryFindOneResponse = service.findById(id);
-            return ResponseEntity.ok(categoryFindOneResponse);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<Category> findById(@PathVariable Long categoryId) {
+        Category category = categoryService.findById(categoryId);
+        return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryCreateRequest createRequest) {
-        CategoryResponse createResponse = service.create(createRequest);
-        return new ResponseEntity(createResponse, HttpStatus.OK);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/add")
+    public ResponseEntity<Category> add(@Valid @RequestBody CategoryCreateRequest createRequest) {
+        Category category = categoryService.add(createRequest);
+        return new ResponseEntity(category, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable Long id) {
-        service.delete(id);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/edit/{categoryId}")
+    public ResponseEntity<Category> update(@Valid @PathVariable Long categoryId, @RequestBody CategoryCreateRequest categoryCreateRequest) {
+        Category category = categoryService.update(categoryId, categoryCreateRequest);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{categoryId}")
+    public ResponseEntity delete(@PathVariable Long categoryId) {
+        categoryService.delete(categoryId);
         return new ResponseEntity(HttpStatus.OK);
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<CategoryUpdateResponse> update(@Valid @PathVariable Long id, @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
-        try {
-            CategoryUpdateResponse updateResponse = service.update(id, categoryUpdateRequest);
-            return new ResponseEntity(updateResponse, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
 
 }

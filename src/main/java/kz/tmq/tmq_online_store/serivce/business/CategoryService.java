@@ -6,13 +6,13 @@ import kz.tmq.tmq_online_store.dto.category.*;
 import java.util.List;
 
 public interface CategoryService {
-    public CategoryResponse create(CategoryCreateRequest createRequest);
 
-    public CategoryFindOneResponse findById(Long id);
+    List<Category> findAll();
+    Category add(CategoryCreateRequest createRequest);
 
-    public List<Category> findAll();
+    Category findById(Long id);
 
-    CategoryUpdateResponse update(Long id, CategoryUpdateRequest updateRequest);
+    Category update(Long id, CategoryCreateRequest categoryCreateRequest);
 
     void delete(Long id);
 }

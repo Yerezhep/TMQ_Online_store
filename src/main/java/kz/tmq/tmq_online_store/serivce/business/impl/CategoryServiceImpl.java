@@ -1,59 +1,58 @@
 package kz.tmq.tmq_online_store.serivce.business.impl;
 
 import kz.tmq.tmq_online_store.dto.category.*;
+import kz.tmq.tmq_online_store.exception.auth.ResourceNotFoundException;
 import kz.tmq.tmq_online_store.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.domain.business.Category;
 import kz.tmq.tmq_online_store.repository.business.CategoryRepository;
 import kz.tmq.tmq_online_store.serivce.business.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private CategoryRepository repository;
-    @Autowired
-    private CommonMapper commonMapper;
 
-    @Override
-    public CategoryResponse create(CategoryCreateRequest createRequest) {
-        Category creatingCategory = commonMapper.convertTo(createRequest, Category.class);
-        Category createdCategory = repository.save(creatingCategory);
+    private final CategoryRepository categoryRepository;
+    private final CommonMapper commonMapper;
 
-        CategoryResponse createResponse = commonMapper.convertTo(createdCategory, CategoryResponse.class);
-        return createResponse;
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CommonMapper commonMapper) {
+        this.categoryRepository = categoryRepository;
+        this.commonMapper = commonMapper;
     }
 
     @Override
-    public CategoryFindOneResponse findById(Long id){
-        Category category = repository.findById(id).get();
-        CategoryFindOneResponse categoryFindOneResponse = commonMapper.convertTo(category, CategoryFindOneResponse.class);
+    public Category add(CategoryCreateRequest createRequest) {
+        Category category = new Category();
+        category.setName(StringUtils.capitalize(createRequest.getName()));
+        return categoryRepository.save(category);
+    }
 
-        return categoryFindOneResponse;
+    @Override
+    public Category findById(Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+        return category;
     }
 
     @Override
     public List<Category> findAll() {
-        return repository.findAll();
+        return categoryRepository.findAll();
     }
 
     @Override
-    public CategoryUpdateResponse update(Long id, CategoryUpdateRequest updateRequest) {
-        Category category = repository.findById(id).get();
-        Category requestCategory = commonMapper.convertTo(updateRequest, Category.class);
-        category.setTitle(requestCategory.getTitle());
-        category.setKeywords(requestCategory.getKeywords());
-        Category updatedCategory = repository.save(category);
-        CategoryUpdateResponse categoryUpdateResponse = commonMapper.convertTo(updatedCategory, CategoryUpdateResponse.class);
+    public Category update(Long id, CategoryCreateRequest categoryCreateRequest) {
+        Category category = findById(id);
+        category.setName(StringUtils.capitalize(categoryCreateRequest.getName()));
 
-        return categoryUpdateResponse;
+        return categoryRepository.save(category);
     }
 
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        categoryRepository.deleteById(id);
     }
 
 

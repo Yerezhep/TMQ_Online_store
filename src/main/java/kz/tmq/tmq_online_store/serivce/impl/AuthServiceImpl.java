@@ -18,6 +18,8 @@ import kz.tmq.tmq_online_store.constant.AuthConstant;
 import kz.tmq.tmq_online_store.exception.auth.FormNotValidException;
 import kz.tmq.tmq_online_store.exception.auth.ResourceExistException;
 import kz.tmq.tmq_online_store.exception.auth.UserNotActivatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +38,8 @@ import java.util.*;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private final UserRepository userRepository;
     private final UserDetailsRepository userDetailsRepository;

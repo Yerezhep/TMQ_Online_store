@@ -23,10 +23,7 @@ public class Category {
     private Long id;
 
     @Column
-    private String title;
-
-    @Column
-    private String keywords;
+    private String name;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

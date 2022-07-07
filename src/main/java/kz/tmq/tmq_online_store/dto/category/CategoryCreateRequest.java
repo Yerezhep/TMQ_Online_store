@@ -7,6 +7,6 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class CategoryCreateRequest {
     @NotBlank
-    private String title;
-    private String keywords;
+    private String name;
+
 }

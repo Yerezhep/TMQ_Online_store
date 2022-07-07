@@ -1,5 +1,6 @@
 package kz.tmq.tmq_online_store.configuration;
 
+import kz.tmq.tmq_online_store.security.RestAuthenticationEntryPoint;
 import kz.tmq.tmq_online_store.security.TokenAuthenticationFilter;
 import kz.tmq.tmq_online_store.security.oauth2.CustomOAuth2UserService;
 import kz.tmq.tmq_online_store.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
@@ -24,11 +25,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    public WebSecurityConfig(TokenAuthenticationFilter tokenAuthenticationFilter, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository, CustomOAuth2UserService customOAuth2UserService) {
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    public WebSecurityConfig(TokenAuthenticationFilter tokenAuthenticationFilter, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository, CustomOAuth2UserService customOAuth2UserService, RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
         this.tokenAuthenticationFilter = tokenAuthenticationFilter;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
     }
 
     @Override
@@ -42,8 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                    .antMatchers("/api/v1/auth/**").permitAll()
-                    .antMatchers("/image/**").permitAll()
+                    .antMatchers("/api/v1/auth/**",
+                            "/image/**",
+                            "/api/v1/category/all").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .oauth2Login()
@@ -59,6 +64,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .userService(customOAuth2UserService)
                     .and()
                     .successHandler(oAuth2AuthenticationSuccessHandler)
+                .and()
+                .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
