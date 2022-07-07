@@ -1,11 +1,11 @@
 package kz.tmq.tmq_online_store.controller.business;
 
+import kz.tmq.tmq_online_store.domain.business.Product;
 import kz.tmq.tmq_online_store.dto.product.ProductCreateResponse;
 import kz.tmq.tmq_online_store.dto.product.ProductFindAllResponse;
 import kz.tmq.tmq_online_store.dto.product.ProductFindOneResponse;
 import kz.tmq.tmq_online_store.dto.product.ProductUpdateResponse;
 import kz.tmq.tmq_online_store.serivce.business.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,38 +17,38 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/v1/product")
 public class ProductController {
 
-    @Autowired
-    private ProductService service;
+    private final ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<List<ProductFindAllResponse>> findAll() {
-        List<ProductFindAllResponse> findAllResponseList = service.findAll();
-        return ResponseEntity.ok(findAllResponseList);
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductFindOneResponse> findById(@PathVariable Long id) {
-        try {
-            ProductFindOneResponse productFindOneResponse = service.findById(id);
-            return ResponseEntity.ok(productFindOneResponse);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/all")
+    public ResponseEntity<List<Product>> findAll() {
+        List<Product> products = productService.findAll();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<Product> findById(@PathVariable Long productId) {
+        Product product = productService.findById(productId);
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
+    @PostMapping(name = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
             MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ProductCreateResponse> create(
+    public ResponseEntity<Product> create(
             @RequestPart("files") List<MultipartFile> files,
             @RequestPart("product") String product) {
-        ProductCreateResponse productCreateResponse = service.create(files,product);
+        ProductCreateResponse productCreateResponse = productService.create(files,product);
         return new ResponseEntity(productCreateResponse, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
-        service.delete(id);
+        productService.delete(id);
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -57,7 +57,7 @@ public class ProductController {
                                                         @RequestPart("product") String productUpdateRequest,
                                                         @RequestPart("files") List<MultipartFile> files) {
         try {
-            ProductUpdateResponse updateResponse = service.update(id, productUpdateRequest,files);
+            ProductUpdateResponse updateResponse = productService.update(id, productUpdateRequest,files);
             return new ResponseEntity(updateResponse, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();

@@ -3,6 +3,7 @@ package kz.tmq.tmq_online_store.serivce.business.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.tmq.tmq_online_store.dto.product.*;
+import kz.tmq.tmq_online_store.exception.auth.ResourceNotFoundException;
 import kz.tmq.tmq_online_store.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.domain.business.Product;
 import kz.tmq.tmq_online_store.domain.business.ProductImage;
@@ -20,14 +21,31 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository repository;
-    @Autowired
-    private CommonMapper commonMapper;
-    @Autowired
-    private FileUploadUtil fileUploadUtil;
-    @Autowired
-    private ProductImageRepository productImageRepository;
+    private final ProductRepository productRepository;
+    private final CommonMapper commonMapper;
+    private final FileUploadUtil fileUploadUtil;
+    private final ProductImageRepository productImageRepository;
+
+    public ProductServiceImpl(ProductRepository productRepository, CommonMapper commonMapper, FileUploadUtil fileUploadUtil, ProductImageRepository productImageRepository) {
+        this.productRepository = productRepository;
+        this.commonMapper = commonMapper;
+        this.fileUploadUtil = fileUploadUtil;
+        this.productImageRepository = productImageRepository;
+    }
+
+    @Override
+    public List<Product> findAll() {
+        List<Product> products = productRepository.findAll();
+        return products;
+    }
+
+    @Override
+    public Product findById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+        return product;
+    }
+
     @Override
     public ProductCreateResponse create(List<MultipartFile> files, String createRequest) {
         ProductCreateRequest productCreateRequest = new ProductCreateRequest();
@@ -41,44 +59,20 @@ public class ProductServiceImpl implements ProductService {
         List<ProductImage> productImages = new ArrayList<>();
         fileUploadUtil.uploadImages(files, creatingProduct, productImages);
         creatingProduct.setImages(productImages);
-        Product createdProduct = repository.save(creatingProduct);
+        Product createdProduct = productRepository.save(creatingProduct);
 
         ProductCreateResponse productCreateResponse = commonMapper.convertTo(createdProduct, ProductCreateResponse.class);
         return productCreateResponse;
     }
 
-
-    @Override
-    public Product findOne(Long id) {
-        return repository.findById(id).get();
-    }
-
-    @Override
-    public ProductFindOneResponse findById(Long id) {
-        Product product = repository.findById(id).get();
-        ProductFindOneResponse productFindOneResponse = commonMapper.convertTo(product, ProductFindOneResponse.class);
-        return productFindOneResponse;
-    }
-
-    @Override
-    public List<ProductFindAllResponse> findAll() {
-        List<Product> products = repository.findAll();
-        List<ProductFindAllResponse> productFindAllResponses= new ArrayList<>();
-        for (Product product : products) {
-            ProductFindAllResponse productFindAllResponse = commonMapper.convertTo(product, ProductFindAllResponse.class);
-            productFindAllResponses.add(productFindAllResponse);
-        }
-        return productFindAllResponses;
-    }
-
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        productRepository.deleteById(id);
     }
 
     @Override
     public ProductUpdateResponse update(Long id, String productUpdateRequest, List<MultipartFile> files) {
-        Product product = repository.findById(id).get();
+        Product product = productRepository.findById(id).get();
         List<ProductImage> productImages = product.getImages();
         productImageRepository.deleteAllInBatch(productImages);
         productImages.clear();
@@ -95,13 +89,12 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatingProduct = commonMapper.convertTo(updateRequest, Product.class);
         product.setTitle(updatingProduct.getTitle());
-        product.setKeywords(updatingProduct.getKeywords());
         product.setPrice(updatingProduct.getPrice());
         product.setDescription(updatingProduct.getDescription());
         product.setCategory(updatingProduct.getCategory());
         product.setImages(productImages);
 
-        Product updatedProduct = repository.save(product);
+        Product updatedProduct = productRepository.save(product);
 
         ProductUpdateResponse productUpdateResponse = commonMapper.convertTo(updatedProduct, ProductUpdateResponse.class);
 

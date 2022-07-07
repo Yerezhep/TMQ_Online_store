@@ -36,9 +36,6 @@ public class Product {
     private Double price;
 
     @Column
-    private String keywords;
-
-    @Column
     private boolean status;
 
     @CreationTimestamp

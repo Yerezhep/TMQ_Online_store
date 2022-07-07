@@ -10,15 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductService {
-    public ProductCreateResponse create(List<MultipartFile> files, String createRequest);
 
-    public Product findOne(Long id);
+    List<Product> findAll();
 
-    public ProductFindOneResponse findById(Long id);
+    Product findById(Long id);
 
-    public List<ProductFindAllResponse> findAll();
+    ProductCreateResponse create(List<MultipartFile> files, String createRequest);
 
-    public void delete(Long id);
+    void delete(Long id);
 
-    public ProductUpdateResponse update(Long id, String productUpdateRequest, List<MultipartFile> files);
+    ProductUpdateResponse update(Long id, String productUpdateRequest, List<MultipartFile> files);
 }
