@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class CategoryCreateRequest {
+public class CategoryRequest {
     @NotBlank
     private String name;
 

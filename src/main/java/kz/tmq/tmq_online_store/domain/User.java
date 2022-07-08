@@ -46,6 +46,9 @@ public class User {
     private List<Role> roles;
 
     @OneToOne(mappedBy = "user")
+    private UserDetails userDetails;
+
+    @OneToOne(mappedBy = "user")
     private Cart cart;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

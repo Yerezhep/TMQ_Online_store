@@ -3,10 +3,12 @@ package kz.tmq.tmq_online_store.security.oauth2;
 import kz.tmq.tmq_online_store.domain.Role;
 import kz.tmq.tmq_online_store.domain.User;
 import kz.tmq.tmq_online_store.domain.UserDetails;
+import kz.tmq.tmq_online_store.domain.business.Cart;
 import kz.tmq.tmq_online_store.domain.enums.AuthProvider;
 import kz.tmq.tmq_online_store.domain.enums.RoleEnum;
 import kz.tmq.tmq_online_store.repository.UserDetailsRepository;
 import kz.tmq.tmq_online_store.repository.UserRepository;
+import kz.tmq.tmq_online_store.repository.business.CartRepository;
 import kz.tmq.tmq_online_store.security.UserPrincipal;
 import kz.tmq.tmq_online_store.security.oauth2.user.OAuth2UserFactory;
 import kz.tmq.tmq_online_store.security.oauth2.user.OAuth2UserInfo;
@@ -31,12 +33,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final UserDetailsRepository userDetailsRepository;
 
-    public CustomOAuth2UserService(UserService userService, RoleService roleService, UserDetailsService userDetailsService, UserRepository userRepository, UserDetailsRepository userDetailsRepository) {
+    private final CartRepository cartRepository;
+
+    public CustomOAuth2UserService(UserService userService, RoleService roleService, UserDetailsService userDetailsService, UserRepository userRepository, UserDetailsRepository userDetailsRepository, CartRepository cartRepository) {
         this.userService = userService;
         this.roleService = roleService;
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
         this.userDetailsRepository = userDetailsRepository;
+        this.cartRepository = cartRepository;
     }
 
     @Override
@@ -79,8 +84,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setAuthProvider(AuthProvider.valueOf(provider.toUpperCase()));
         Role role = roleService.findRoleByName(RoleEnum.ROLE_USER.name());
         user.setRoles(Collections.singletonList(role));
+        user = userRepository.save(user);
 
-        return userRepository.save(user);
+        // user details and cart
+        UserDetails userDetails = new UserDetails();
+        userDetails.setUser(user);
+        userDetailsRepository.save(userDetails);
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
+
+        return user;
     }
 
 }

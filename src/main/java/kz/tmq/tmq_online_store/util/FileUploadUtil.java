@@ -19,8 +19,7 @@ import java.util.UUID;
 @Component
 public class FileUploadUtil {
 
-//    public final String UPLOAD_DIR = new ClassPathResource("static/image/").getFile().getAbsolutePath();
-    public static final String UPLOAD_DIR = "C:\\Users\\Е\\Desktop\\pp\\storage\\product-images";
+    public final String UPLOAD_DIR = new ClassPathResource("static/image/").getFile().getAbsolutePath();
 
     public FileUploadUtil() throws IOException {
     }

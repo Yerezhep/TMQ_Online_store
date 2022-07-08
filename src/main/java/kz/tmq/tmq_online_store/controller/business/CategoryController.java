@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/category")
@@ -35,15 +34,15 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/add")
-    public ResponseEntity<Category> add(@Valid @RequestBody CategoryCreateRequest createRequest) {
+    public ResponseEntity<Category> add(@Valid @RequestBody CategoryRequest createRequest) {
         Category category = categoryService.add(createRequest);
         return new ResponseEntity(category, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/edit/{categoryId}")
-    public ResponseEntity<Category> update(@Valid @PathVariable Long categoryId, @RequestBody CategoryCreateRequest categoryCreateRequest) {
-        Category category = categoryService.update(categoryId, categoryCreateRequest);
+    public ResponseEntity<Category> update(@Valid @PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+        Category category = categoryService.update(categoryId, categoryRequest);
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
 

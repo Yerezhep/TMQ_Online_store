@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order createOrder(User user, OrderCreateRequest orderCreateRequest) {
 
-        Cart cart = cartService.getUserCart(user);
+        Cart cart = user.getCart();
         Order order = new Order();
 
         OrderShippingAddress shippingAddress = new OrderShippingAddress();

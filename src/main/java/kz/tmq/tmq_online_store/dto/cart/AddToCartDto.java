@@ -7,7 +7,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class AddToCartDto {
 
-    private @NotNull Long productId;
-    private @NotNull Integer quantity;
+    @NotNull
+    private Long productId;
+
+    @NotNull
+    private Integer quantity;
 
 }

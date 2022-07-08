@@ -6,7 +6,6 @@ import kz.tmq.tmq_online_store.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.domain.business.Category;
 import kz.tmq.tmq_online_store.repository.business.CategoryRepository;
 import kz.tmq.tmq_online_store.serivce.business.CategoryService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category add(CategoryCreateRequest createRequest) {
+    public Category add(CategoryRequest createRequest) {
         Category category = new Category();
         category.setName(StringUtils.capitalize(createRequest.getName()));
         return categoryRepository.save(category);
@@ -43,9 +42,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category update(Long id, CategoryCreateRequest categoryCreateRequest) {
+    public Category update(Long id, CategoryRequest categoryRequest) {
         Category category = findById(id);
-        category.setName(StringUtils.capitalize(categoryCreateRequest.getName()));
+        category.setName(StringUtils.capitalize(categoryRequest.getName()));
 
         return categoryRepository.save(category);
     }

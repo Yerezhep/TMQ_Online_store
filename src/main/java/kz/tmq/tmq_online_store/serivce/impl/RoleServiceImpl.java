@@ -20,6 +20,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role findRoleByName(String name) {
         return roleRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException(AuthConstant.ROLE, AuthConstant.NAME, RoleEnum.ROLE_USER.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(AuthConstant.ROLE, AuthConstant.NAME, name));
     }
 }

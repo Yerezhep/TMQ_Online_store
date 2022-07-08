@@ -1,5 +1,6 @@
 package kz.tmq.tmq_online_store.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import kz.tmq.tmq_online_store.domain.enums.Gender;
 import lombok.Data;
 
@@ -27,8 +28,9 @@ public class UserDetails {
 
     private String phoneNumber;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @OneToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id")
     private User user;
 
 }

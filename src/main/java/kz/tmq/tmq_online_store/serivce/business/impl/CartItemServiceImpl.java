@@ -92,7 +92,7 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void removeCartIemFromCart(Long id, User user) {
 
-        Cart cart = cartService.getUserCart(user);
+        Cart cart = user.getCart();
         Set<CartItem> items = cart.getCartItems();
         CartItem cartItem = null;
         for(CartItem item : items){
@@ -113,7 +113,7 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public void updateCartItem(Long id, int quantity, User user) {
-        Cart cart = cartService.getUserCart(user);
+        Cart cart = user.getCart();
         Set<CartItem> cartItems = cart.getCartItems();
         CartItem cartItem = null;
         for (CartItem item: cartItems) {

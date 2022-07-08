@@ -12,6 +12,7 @@ import kz.tmq.tmq_online_store.serivce.business.OrderService;
 import kz.tmq.tmq_online_store.dto.order.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,8 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/api/v1/order")
+@PreAuthorize("hasRole('ROLE_USER')")
 public class OrderController {
 
     private final OrderService orderService;
@@ -34,7 +36,7 @@ public class OrderController {
         this.commonMapper = commonMapper;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<OrderResponseMessage> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal){
 

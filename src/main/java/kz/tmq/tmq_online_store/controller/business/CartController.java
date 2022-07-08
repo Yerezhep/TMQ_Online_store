@@ -12,11 +12,13 @@ import kz.tmq.tmq_online_store.serivce.business.CartItemService;
 import kz.tmq.tmq_online_store.serivce.business.CartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/v1/cart")
+@PreAuthorize("hasRole('ROLE_USER')")
 public class CartController {
 
 
@@ -30,40 +32,21 @@ public class CartController {
         this.userService = userService;
     }
 
-
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addToCart(@RequestBody AddToCartDto addToCartDto,
                                                   @AuthenticationPrincipal UserPrincipal userPrincipal){
-
-        User user = userService.findById(userPrincipal.getId());
-
-        if(cartService.cartIsPresent(user)){
-            cartService.addToExistingCart(user, addToCartDto);
-        }else {
-            cartService.addCartFirstTime(user, addToCartDto);
-        }
-
-        return new ResponseEntity<>(new CartResponse(true, "Added to cart"), HttpStatus.CREATED);
-
+        CartResponse cartResponse = cartService.addToCart(userPrincipal.getEmail(), addToCartDto);
+        return new ResponseEntity<>(cartResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{cartItemId}")
-    public ResponseEntity<CartItemDto> getCartItem(@PathVariable Long cartItemId,
-                                                   @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        User user = userService.findById(userPrincipal.getId());
-        Cart cart = cartService.getUserCart(user);
-        CartItemDto cartItemDto = cartItemService.findById(cart, cartItemId);
-        return new ResponseEntity<>(cartItemDto, HttpStatus.OK);
-    }
-
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<CartDto> getCartItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
-        CartDto cartDto = cartItemService.getCartItems(cartService.getUserCart(user));
+        CartDto cartDto = cartItemService.getCartItems(user.getCart());
         return new ResponseEntity<>(cartDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/remove/{cartItemId}")
+    @DeleteMapping("/delete/{cartItemId}")
     public ResponseEntity<CartResponse> removeCartItem(@PathVariable("cartItemId") Long id, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
         cartItemService.removeCartIemFromCart(id, user);
@@ -71,7 +54,7 @@ public class CartController {
     }
 
 
-    @DeleteMapping("/clear")
+    @DeleteMapping
     public ResponseEntity<CartResponse> clearCart(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
         cartService.clearShoppingCart(user);

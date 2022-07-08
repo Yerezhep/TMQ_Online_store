@@ -3,12 +3,14 @@ package kz.tmq.tmq_online_store.serivce.impl;
 import kz.tmq.tmq_online_store.domain.Role;
 import kz.tmq.tmq_online_store.domain.User;
 import kz.tmq.tmq_online_store.domain.UserDetails;
+import kz.tmq.tmq_online_store.domain.business.Cart;
 import kz.tmq.tmq_online_store.domain.enums.AuthProvider;
 import kz.tmq.tmq_online_store.domain.enums.RoleEnum;
 import kz.tmq.tmq_online_store.dto.auth.*;
 import kz.tmq.tmq_online_store.mapper.CommonMapper;
 import kz.tmq.tmq_online_store.repository.UserDetailsRepository;
 import kz.tmq.tmq_online_store.repository.UserRepository;
+import kz.tmq.tmq_online_store.repository.business.CartRepository;
 import kz.tmq.tmq_online_store.security.TokenProvider;
 import kz.tmq.tmq_online_store.serivce.AuthService;
 import kz.tmq.tmq_online_store.serivce.RoleService;
@@ -43,6 +45,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final UserDetailsRepository userDetailsRepository;
+
+    private final CartRepository cartRepository;
     private final RoleService roleService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -56,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthServiceImpl(UserRepository userRepository,
                            UserDetailsRepository userDetailsRepository,
-                           RoleService roleService,
+                           CartRepository cartRepository, RoleService roleService,
                            UserService userService,
                            PasswordEncoder passwordEncoder,
                            MailServiceImpl mailServiceImpl,
@@ -65,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
                            CommonMapper commonMapper) {
         this.userRepository = userRepository;
         this.userDetailsRepository = userDetailsRepository;
+        this.cartRepository = cartRepository;
         this.roleService = roleService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -93,11 +98,14 @@ public class AuthServiceImpl implements AuthService {
         registeringUser.setAuthProvider(AuthProvider.LOCAL);
         registeringUser.setActivationCode(UUID.randomUUID().toString());
 
-        // save user and user details
+        // save user and user details and cart
         User registeredUser = userRepository.save(registeringUser);
         UserDetails userDetails = new UserDetails();
         userDetails.setUser(registeredUser);
         userDetailsRepository.save(userDetails);
+        Cart cart = new Cart();
+        cart.setUser(registeredUser);
+        cartRepository.save(cart);
 
         // send activation link to email
         sendEmail(registeredUser.getEmail(),

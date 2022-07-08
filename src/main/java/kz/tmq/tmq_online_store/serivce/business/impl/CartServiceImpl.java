@@ -5,8 +5,10 @@ import kz.tmq.tmq_online_store.dto.cart.AddToCartDto;
 import kz.tmq.tmq_online_store.domain.business.Cart;
 import kz.tmq.tmq_online_store.domain.business.CartItem;
 import kz.tmq.tmq_online_store.domain.business.Product;
-import kz.tmq.tmq_online_store.exception.business.CartEmptyException;
+import kz.tmq.tmq_online_store.dto.cart.CartResponse;
+import kz.tmq.tmq_online_store.repository.business.CartItemRepository;
 import kz.tmq.tmq_online_store.repository.business.CartRepository;
+import kz.tmq.tmq_online_store.serivce.UserService;
 import kz.tmq.tmq_online_store.serivce.business.CartService;
 import kz.tmq.tmq_online_store.serivce.business.ProductService;
 import org.springframework.stereotype.Service;
@@ -20,79 +22,50 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final ProductService productService;
+    private final UserService userService;
 
-    public CartServiceImpl(CartRepository cartRepository, ProductService productService) {
+    private final CartItemRepository cartItemRepository;
+
+    public CartServiceImpl(CartRepository cartRepository, ProductService productService, UserService userService, CartItemRepository cartItemRepository) {
         this.cartRepository = cartRepository;
         this.productService = productService;
-    }
-
-
-    @Override
-    public boolean cartIsPresent(User user) {
-        return cartRepository.existsByUser(user);
+        this.userService = userService;
+        this.cartItemRepository = cartItemRepository;
     }
 
     @Override
-    public Cart addCartFirstTime(User user, AddToCartDto addToCartDto) {
-        Cart cart = new Cart();
-        CartItem cartItem = new CartItem();
+    public CartResponse addToCart(String email, AddToCartDto addToCartDto) {
+        User user = userService.findByEmail(email);
+        Cart cart = user.getCart();
+        Product product = productService.findById(addToCartDto.getProductId());
 
-        cartItem.setQuantity(addToCartDto.getQuantity());
-        cartItem.setProduct(productService.findOne(addToCartDto.getProductId()));
-
-        Integer quantity = addToCartDto.getQuantity();
-        if(quantity == null){
-            quantity = 1;
-        }
-        cartItem.setQuantity(quantity);
-        cartItem.setProduct(productService.findOne(addToCartDto.getProductId()));
-
-        cartItem.setCart(cart);
-
-        cart.getCartItems().add(cartItem);
-        cart.setUser(user);
-        return cartRepository.save(cart);
-    }
-
-    @Override
-    public Cart addToExistingCart(User user, AddToCartDto addToCartDto) {
-
-        Cart cart = getUserCart(user);
-        Product product = productService.findOne(addToCartDto.getProductId());
-
-        boolean productDoesExistInTheCart = false;
-        if(cart != null){
-            Set<CartItem> cartItems = cart.getCartItems();
-            for(CartItem cartItem : cartItems){
-                if(cartItem.getProduct().equals(product)){
-                    productDoesExistInTheCart = true;
-                    cartItem.setQuantity(cartItem.getQuantity() + addToCartDto.getQuantity());
-                    cart.setCartItems(cartItems);
-                    return cartRepository.saveAndFlush(cart);
-                }
+        boolean productExist = false;
+        Set<CartItem> cartItems = cart.getCartItems();
+        for(CartItem cartItem : cartItems){
+            if(cartItem.getProduct().equals(product)){
+                productExist = true;
+                cartItem.setQuantity(cartItem.getQuantity() + addToCartDto.getQuantity());
+                cart.setCartItems(cartItems);
+                cartRepository.save(cart);
             }
         }
 
-        if(!productDoesExistInTheCart && (cart != null)){
+        if(!productExist){
             CartItem cartItem = new CartItem();
             cartItem.setQuantity(addToCartDto.getQuantity());
             cartItem.setProduct(product);
             cartItem.setCart(cart);
             cart.getCartItems().add(cartItem);
-            return cartRepository.saveAndFlush(cart);
+            cartRepository.save(cart);
         }
-        return this.addCartFirstTime(user, addToCartDto);
-    }
-
-    @Override
-    public Cart getUserCart(User user) {
-        return cartRepository.findByUser(user).orElseThrow(() -> new CartEmptyException("Cart is empty"));
+        return new CartResponse(true, "Product with id " + addToCartDto.getProductId() + " added successfully to cart");
     }
 
     @Override
     public void clearShoppingCart(User user) {
-        Cart cart = getUserCart(user);
-        cartRepository.delete(cart);
+        Cart cart = user.getCart();
+        Set<CartItem> cartItems = cart.getCartItems();
+        cartItemRepository.deleteAllInBatch(cartItems);
     }
 
     @Override

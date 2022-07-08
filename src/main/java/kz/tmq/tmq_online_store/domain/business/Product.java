@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -26,16 +27,20 @@ public class Product {
     private Long id;
 
     @Column
+    @NotNull
     private String title;
 
     @Column
     @Type(type = "text")
+    @NotNull
     private String description;
 
     @Column
+    @NotNull
     private Double price;
 
     @Column
+    @NotNull
     private boolean status;
 
     @CreationTimestamp
