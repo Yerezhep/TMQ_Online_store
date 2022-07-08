@@ -68,7 +68,7 @@ public class OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<AllOrderResponse>> getOrders(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userService.findById(userPrincipal.getId());
         List<Order> orders = orderService.findAllByUser(user);

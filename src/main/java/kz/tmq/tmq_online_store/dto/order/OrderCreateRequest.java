@@ -27,7 +27,7 @@ public class OrderCreateRequest {
     @NotBlank
     private String state;
 
-    @NotBlank()
+    @NotBlank
     private String zipCode;
 
 }
